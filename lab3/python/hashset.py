@@ -1,6 +1,8 @@
 from enum import Enum
 import config
 
+# # TODO:
+
 class hashset:
 
     def __init__(self):
@@ -39,6 +41,11 @@ class hashset:
             n = n + 1
         return n
 
+    def prev_prime(self, n):
+        while (not self.is_prime(n)):
+            n = n - 1
+        return n
+
     # Increase Hash-table size !!! Table is not resizing
     def resize_table(self):
         print("Resizing table...")
@@ -67,6 +74,11 @@ class hashset:
         for idx, chr in enumerate(value):
             total += c**ord(chr)
         return abs(total) % n
+
+    def hash_3(self, value):
+        prime = self.prev_prime(self.hash_table_size)
+        return prime - (self.hash_1(value) % prime)
+
 # ----------------- Main Methods ---------------- #
 
     # Inserts an element onto Hash Table
@@ -86,6 +98,7 @@ class hashset:
             index = self.handle_collision(value, increment)
             increment += 1
             self.num_of_collisions += 1
+            # print("stuck in loop. index = %d" %index)
             # print("value of index = " + str(index))
         print("Available index found! :%d" %index)
         # Insert, update stats
@@ -120,10 +133,10 @@ class hashset:
     def handle_collision(self, value, increment):
         # Double hashing 1
         if (self.mode == HashingModes.HASH_1_DOUBLE_HASHING.value):
-            return self.double_hash(self.hash_1(value), self.hash_2(value), increment)
+            return self.double_hash(self.hash_1(value), self.hash_3(value), increment)
         # Double hashing 2
         if (self.mode == HashingModes.HASH_2_DOUBLE_HASHING.value):
-            return self.double_hash(self.hash_2(value), self.hash_1(value), increment)
+            return self.double_hash(self.hash_3(value), self.hash_1(value), increment)
         # Linear-probing
         if (self.mode == HashingModes.HASH_1_LINEAR_PROBING.value or self.mode == HashingModes.HASH_2_LINEAR_PROBING.value):
             return self.linear_probe(self.get_hash(value), increment)
@@ -143,7 +156,7 @@ class hashset:
         return (index + increment**2) % self.hash_table_size
 
     def double_hash(self, index, index2, increment):
-        return (index + index2) % self.hash_table_size
+        return (index + (increment * index2)) % self.hash_table_size
 
     def separate_chain(self, index, increment):
         return self.hash_table_chaining[index][increment-1]
