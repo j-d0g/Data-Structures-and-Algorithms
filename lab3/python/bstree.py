@@ -1,12 +1,15 @@
 import config
 
 class bstree:
+
+    total_comparisons_find = 0
+    total_comparisons_insert = 0
+
     def __init__(self, value=None):
         self.verbose = config.verbose
         self.left = None
         self.right = None
         self.value = value
-        self.num_of_comparisons = 0
 
     def size(self):
         if (self.value != None):
@@ -19,11 +22,6 @@ class bstree:
             else:
                 return 1
         return 0
-
-    def is_a_tree(self):
-        # This counts as a tree if it has a field self.value
-        # it should also have sub-trees self.left and self.right
-        return hasattr(self, 'value')
 
     def height(self):
         if self.value == None:
@@ -44,9 +42,9 @@ class bstree:
 
     # Done
     def insert(self, value):
-        # if (self.is_a_tree()):
+        # Increment visitations
         if (self.value != None):
-            self.num_of_comparisons += 1
+            bstree.increment_comparisons_insert()
             # if value at current node is equal to value to insert, exit
             if self.value == value:
                 return
@@ -58,7 +56,6 @@ class bstree:
                     self.right.insert(value)
             # if value at current node > value to insert, recurse left
             if self.value > value:
-                self.num_of_comparisons += 1
                 if self.left == None:
                     self.left = bstree(value)
                 else:
@@ -68,9 +65,8 @@ class bstree:
 
     # Done
     def find(self, value):
-        # if self.is_a_tree():
         if self.value != None:
-            self.num_of_comparisons += 1
+            bstree.increment_comparisons_find()
         # if the value at the current node > value to find, recurse right
             if value > self.value and self.right != None:
                 return self.right.find(value)
@@ -85,7 +81,6 @@ class bstree:
 
     # You can update this if you want
     def print_set_recursive(self, depth):
-        # if self.is_a_tree():
         if (self.value != None):
             for i in range(depth):
                 print(" ", end='')
@@ -101,7 +96,29 @@ class bstree:
         self.print_set_recursive(0)
 
     def print_stats(self):
-        # TODO update code to record and print statistic
+        # prints tree in alphabetical order
+        print("Printing tree in alphabetical order...")
+        self.print_alphabetical_order()
+        # other statistics
         print("Size of tree: " + str(self.size()))
         print("Height of tree: " + str(self.height()))
-        print("Average number of comparisons per operation: " + str(self.num_of_comparisons / self.size()))
+        # includes both find and inserts
+        print("Average number of comparisons per find: " + str(self.total_comparisons_find / self.size()))
+        print("Average number of comparisons per insert: " + str(self.total_comparisons_insert / self.size()))
+        
+    #  In-order traversal leverages characteristics of bstree to print values in alphabetical order
+    def print_alphabetical_order(self):
+        if (self.value != None):
+            if self.left != None:
+                self.left.print_alphabetical_order()
+            print(self.value)
+            if self.right != None:
+                self.right.print_alphabetical_order()
+
+    @classmethod
+    def increment_comparisons_find(cls):
+        cls.total_comparisons_find += 1
+
+    @classmethod
+    def increment_comparisons_insert(cls):
+        cls.total_comparisons_insert += 1
