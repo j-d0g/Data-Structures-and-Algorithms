@@ -11,8 +11,9 @@ class hashset:
         self.hash_table_size = config.init_size
         self.size = 0
         self.hash_table = [None for i in range(self.hash_table_size)]
-        self.hash_table_chain = []
+        # self.hash_table_chain = []
         self.num_of_collisions = 0
+        self.duplicates_removed = 0
         self.LOAD_FACTOR_LIMIT = 0.5
 
 # --------------- Helper-Methods ---------------- #
@@ -66,10 +67,6 @@ class hashset:
 
     # Polynomial hashing method
     def hash_2(self, value):
-    #     total, c, n = 0, 31, self.hash_table_size
-    #     for idx, chr in enumerate(value):
-    #         total += ord(chr) * c**(n-idx)
-    #     return total % n
         total, c, n = 0, 29, self.hash_table_size
         for idx, chr in enumerate(value):
             total += c**ord(chr)
@@ -85,21 +82,20 @@ class hashset:
     def insert(self, value):
         print("Size of table: %d" % self.hash_table_size)
         print("Size: %d" % self.size)
-        # Resizes table if specified lf limit exceeded.
+        # Resizes table if specified lf load factor limit exceeded.
         if (self.get_lf() >= self.LOAD_FACTOR_LIMIT):
             self.resize_table()
         index = self.get_hash(value)
-        # if duplicate
+        # if duplicate, skip
         if (self.hash_table[index] == value):
+            self.duplicates_removed += 1
             return
-        # while collision
+        # while there is a collision, handle it
         increment = 1
         while not(self.is_empty(index)):
             index = self.handle_collision(value, increment)
             increment += 1
             self.num_of_collisions += 1
-            # print("stuck in loop. index = %d" %index)
-            # print("value of index = " + str(index))
         print("Available index found! :%d" %index)
         # Insert, update stats
         print("Inserting at index %d: " %index + value)
@@ -109,23 +105,19 @@ class hashset:
     # Finds a given word and returns True if it's in the Hash Table
     def find(self, value):
         index = self.get_hash(value)
-        # while not empty but not the value we're looking for
         increment = 1
         while (not(self.is_empty(index)) and self.hash_table[index] != value):
             index = self.handle_collision(value, increment)
             increment += 1
             self.num_of_collisions += 1
-            print("Collision looking for element: " + value)
         return (self.hash_table[index] == value)
 
 # ----------------- Process Modes ---------------- #
 
-    # Helper to process correct hashing method
+    # Process correct hashing method
     def get_hash(self, value):
-        # basic hash: modes 0-3
         if (self.mode >= 0 and self.mode <= 3):
             return self.hash_1(value)
-        # poly hash: modes 4-7
         else :
             return self.hash_2(value)
 
@@ -144,8 +136,8 @@ class hashset:
         if (self.mode == HashingModes.HASH_1_QUADRATIC_PROBING.value or self.mode == HashingModes.HASH_2_QUADRATIC_PROBING.value):
             return self.quadratic_probe(self.get_hash(value), increment)
         # Separate chaining
-        if (self.mode == HashingModes.HASH_1_SEPARATE_CHAINING.value or self.mode == HashingModes.HASH_2_SEPARATE_CHAINING.value):
-            return self.separate_chain(self.get_hash(value), increment)
+        # if (self.mode == HashingModes.HASH_1_SEPARATE_CHAINING.value or self.mode == HashingModes.HASH_2_SEPARATE_CHAINING.value):
+        #     return self.separate_chain(self.get_hash(value), increment)
 
 # --------------- Collision-Handling -------------- #
 
@@ -158,8 +150,8 @@ class hashset:
     def double_hash(self, index, index2, increment):
         return (index + (increment * index2)) % self.hash_table_size
 
-    def separate_chain(self, index, increment):
-        return self.hash_table_chaining[index][increment-1]
+    # def separate_chain(self, index, increment):
+    #     return self.hash_table_chaining[index][increment-1]
 
 # ------------------- Diagnostics ------------------ #
 
@@ -170,6 +162,7 @@ class hashset:
     def print_stats(self):
         print("Hash-set contains %d elements\n" % self.size)
         print("%d collisions occurred\n" % self.num_of_collisions)
+        print("Duplicates removed: %d" %self.duplicates_removed)
 
 # ------------------ Hashing Modes ----------------- #
 
