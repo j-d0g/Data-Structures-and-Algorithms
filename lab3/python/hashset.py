@@ -11,7 +11,7 @@ class hashset:
         self.hash_table_size = config.init_size
         self.size = 0
         self.hash_table = [None for i in range(self.hash_table_size)]
-        # self.hash_table_chain = []
+        # self.hash_table_chain = [][]
         self.num_of_collisions = 0
         self.duplicates_removed = 0
         self.LOAD_FACTOR_LIMIT = 0.5
@@ -47,14 +47,14 @@ class hashset:
             n = n - 1
         return n
 
-    # Increase Hash-table size !!! Table is not resizing
+    # Dynamically resizes table
     def resize_table(self):
-        print("Resizing table...")
-        new_size = self.next_prime(self.hash_table_size * 2)
-        for i in range(self.hash_table_size, self.next_prime(self.hash_table_size * 2)):
-            self.hash_table.append(None)
-        self.hash_table_size = len(self.hash_table)
-        print("New size: %d" % self.hash_table_size)
+        self.hash_table_size = self.next_prime(self.hash_table_size * 2)
+        old_table = self.hash_table
+        self.hash_table = [None for i in range(self.hash_table_size)]
+        for value in old_table:
+            if value is not None:
+                self.insert(value)
 
 # -------------------- Hashing ------------------- #
 
@@ -72,6 +72,7 @@ class hashset:
             total += c**ord(chr)
         return abs(total) % n
 
+    # Second hashing method (for double-hashing)
     def hash_3(self, value):
         prime = self.prev_prime(self.hash_table_size)
         return prime - (self.hash_1(value) % prime)
@@ -87,7 +88,8 @@ class hashset:
             self.resize_table()
         index = self.get_hash(value)
         # if duplicate, skip
-        if (self.hash_table[index] == value):
+        if (self.find(value)):
+        # if (self.hash_table[index] == value):
             self.duplicates_removed += 1
             return
         # while there is a collision, handle it
@@ -102,14 +104,16 @@ class hashset:
         self.hash_table[index] = value
         self.size += 1
 
-    # Finds a given word and returns True if it's in the Hash Table
+    # Searches for a given word
     def find(self, value):
         index = self.get_hash(value)
         increment = 1
+        # Given the slot isn't empty, while the value isn't the word we're looking for...
         while (not(self.is_empty(index)) and self.hash_table[index] != value):
             index = self.handle_collision(value, increment)
             increment += 1
             self.num_of_collisions += 1
+        # Returns True if it's in the Hash Table, False if not.
         return (self.hash_table[index] == value)
 
 # ----------------- Process Modes ---------------- #
