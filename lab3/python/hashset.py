@@ -1,9 +1,12 @@
 from enum import Enum
 import config
+import time
 
 # # TODO:
 
 class hashset:
+
+    start_time = time.time()
 
     def __init__(self):
         self.verbose = config.verbose
@@ -24,7 +27,7 @@ class hashset:
 
     # Returns True if the index is empty
     def is_empty(self, index):
-        if (self.hash_table[index] == None):
+        if (self.hash_table[index] is None):
             return True
         return False
 
@@ -55,6 +58,7 @@ class hashset:
         for value in old_table:
             if value is not None:
                 self.insert(value)
+                self.size -= 1
 
 # -------------------- Hashing ------------------- #
 
@@ -73,7 +77,12 @@ class hashset:
         return abs(total) % n
 
     # Second hashing method (for double-hashing)
-    def hash_3(self, value):
+    def double_hash_1(self, value):
+        prime = self.prev_prime(self.hash_table_size)
+        return prime - (self.hash_2(value) % prime)
+
+    # Second hashing method (for double-hashing)
+    def double_hash_2(self, value):
         prime = self.prev_prime(self.hash_table_size)
         return prime - (self.hash_1(value) % prime)
 
@@ -98,9 +107,9 @@ class hashset:
             index = self.handle_collision(value, increment)
             increment += 1
             self.num_of_collisions += 1
-        print("Available index found! :%d" %index)
+        # print("Available index found! :%d" %index)
         # Insert, update stats
-        print("Inserting at index %d: " %index + value)
+        # print("Inserting at index %d: " %index + value)
         self.hash_table[index] = value
         self.size += 1
 
@@ -129,10 +138,10 @@ class hashset:
     def handle_collision(self, value, increment):
         # Double hashing 1
         if (self.mode == HashingModes.HASH_1_DOUBLE_HASHING.value):
-            return self.double_hash(self.hash_1(value), self.hash_3(value), increment)
+            return self.double_hash(self.hash_2(value), self.double_hash_2(value), increment)
         # Double hashing 2
         if (self.mode == HashingModes.HASH_2_DOUBLE_HASHING.value):
-            return self.double_hash(self.hash_3(value), self.hash_1(value), increment)
+            return self.double_hash(self.hash_1(value), self.double_hash_1(value), increment)
         # Linear-probing
         if (self.mode == HashingModes.HASH_1_LINEAR_PROBING.value or self.mode == HashingModes.HASH_2_LINEAR_PROBING.value):
             return self.linear_probe(self.get_hash(value), increment)
@@ -164,9 +173,14 @@ class hashset:
                 print(word)
 
     def print_stats(self):
-        print("Hash-set contains %d elements\n" % self.size)
-        print("%d collisions occurred\n" % self.num_of_collisions)
+        print("Hash-set contains %d elements" % self.size)
+        print("%d collisions occurred" % self.num_of_collisions)
         print("Duplicates removed: %d" %self.duplicates_removed)
+        hashset.get_execution_time()
+
+    @classmethod
+    def get_execution_time(cls):
+        print("Run time: %fs" % (time.time() - cls.start_time))
 
 # ------------------ Hashing Modes ----------------- #
 

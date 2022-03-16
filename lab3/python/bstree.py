@@ -1,7 +1,9 @@
 import config
+import time
 
 class bstree:
 
+    start_time = time.time()
     total_comparisons_find = 0
     total_comparisons_insert = 0
 
@@ -90,22 +92,24 @@ class bstree:
             if (self.right != None):
                 self.right.print_set_recursive(depth + 1)
 
-    # You can update this if you want
     def print_set(self):
         print("Tree:\n")
         self.print_set_recursive(0)
 
     def print_stats(self):
-        # prints tree in alphabetical order
         print("Printing tree in alphabetical order...")
         self.print_alphabetical_order()
-        # other statistics
         print("Size of tree: " + str(self.size()))
         print("Height of tree: " + str(self.height()))
-        # includes both find and inserts
-        print("Average number of comparisons per find: " + str(self.total_comparisons_find / self.size()))
-        print("Average number of comparisons per insert: " + str(self.total_comparisons_insert / self.size()))
-        
+        print("Average number of comparisons per find: %f" % (self.total_comparisons_find / self.size()))
+        print("Average number of comparisons per insert: %f" % (self.total_comparisons_insert / self.size()))
+        print("Total Comparisons: %d" % (self.total_comparisons_find + self.total_comparisons_insert))
+        bstree.get_execution_time()
+
+    @classmethod
+    def get_execution_time(cls):
+        print("Run time: %fs" % (time.time() - cls.start_time))
+
     #  In-order traversal leverages characteristics of bstree to print values in alphabetical order
     def print_alphabetical_order(self):
         if (self.value != None):
