@@ -13,14 +13,23 @@ Initial Expectations
 
 >> Do you expect this data structure to be preferable to the others on all inputs, most  inputs, some inputs? Why?
 
-
+Hash-table:
+Some inputs. 
 
 >> Do you expect your answer to change if the order of the words in your input dictionary is in the best/worst case? Why?
 
-
+For my hash-map implementation, it doesn't really matter what order we input into the dictionary in terms of complexity.
+However, in our Binary Search Tree implementation, the best case would be values starting from the middle outward, i.e n, then n-1, n+1, n-2, n+2 ... n - ~m, n + ~m,
+whereas the worst case scenario would be a sorted input list, which would yield a height of n, and thus O(n) complexity for inserts and finds.
 
 >> Can you phrase what you expect in terms of a one or two sentence hypothesis that you can test?
 
+### Hash-Set:
+
+My hypothesis is that for poorer collision handling techniques and hash functions, there will be much more collisions and thus slower compute times. 
+I also predict that hash maps will yield a much faster 'find' time than both binary search trees, and dynamic arrays, given that the conditions for ammortised
+operations are true (such that prime numbers are used for table size, a uniform hashing function is used, collision-handling methods that reduce clustering are
+implemented etc.). This I assume would be true for modes 5, 6 and 7 in particular.
 
 ------------------------
 Experimental Design
@@ -29,11 +38,12 @@ Experimental Design
 
 >> How are you going to define what it means for one data stucture to be preferable to another?
 
-
+In the context of a spell-checker, because the universe of english words is finite but the number of calls to 'find' are potentially infinite, I am going to
+define the preferable data structure to be the one with the most efficient find operation.
 
 >> Which conditions will you vary in your experiment? 
 
-
+Execution time, number of collisions, 
 
 >> How will you vary them? Why did you make these choices? Did you use theoretical complexities, best, worst and average cases to inform your decisions?
 
@@ -51,14 +61,89 @@ Experimental Design
 Results and Analysis
 ------------------------
 
-
 >> What results did you record?
 
+Data Structure       Mode  Collisions   Run-time       Sort       Insert     Find
+
+Hash Set	         0	   Time Exceed	Time Exceeded  N/a	     O(n)	   O(n)
+Hash Set	         1	   187793991	664.600185	   N/a	     O(n)	   O(n)
+Hash Set	         2	   894213	    76.873675	   N/a	     ???*	   ???*
+Hash Set	         4	   494805	    10.281634	   N/a	     O(1)	   O(1)
+Hash Set	         5	   407758	    9.987336	   N/a	     O(1)	   O(1)
+Hash Set	         6	   357039	    35.198227	   N/a	     O(1)	   O(1)
+Dynamic Array	     0	   N/a	        Time Exceeded  N/a	     O(n)	   O(n)
+Dynamic Array	     1	   N/a	        Time Exceeded  O(n^2)	 O(logn)   O(n^2)
+Dynamic Array	     2	   N/a	        3.60619	       O(nlogn)	 O(1)	   O(nlogn)
+Binary Search Tree	 0     N/a     	    9.635052	   O(n)	     O(h)	   O(h)
 
 >> What does this tell you about the performance of the data structure?
 
-
 >> What is the answer to the question "Under what conditions is it preferable to use this data structure?"
 
+### Dynamic Arrays
 
+**Mode 0:**
+
+- Extremely slow, as expected.
+- In the worst case, each insert is expected to take $O(n)$ if there are no duplicates, and each find will also be $O(n)$ in the case the item to be found is at the end of the list / not present.
+- As you can deduce, this is a fairly common worst case scenario, so the cost cannot be ammortised either.
+
+**Mode 1: Insertion Sort**
+
+- Assuming the list is sorted, this method would allow for fairly quick insert / finds, at O(logn).
+- In Big O Complexity, this is just as fast as a fairly balanced Binary Search Tree, however it is more consistent as Binary Search Trees’ heights can sometimes be $O(n)$ (sorted input list).
+- However, insertion sort has a worst case complexity of $O(n^2)$ and so it takes far too long to even sort the list, so I never managed to see the insert/finds in action.
+
+**Mode 2: Quick Sort**
+
+- $O(nlogn)$ sort time showed a huge difference from Insertion Sort’s $O(n^2)$
+- Managed to see the $O(nlogn)$  sort times in action, and the program compiled in just over 3 seconds!
+- Extremely fast performance, but I suspect it’s advantage over my Hash Set implementations are due to the constant time inserts being faster in an array, and the sheer volume of inserts involved in running the large dictionary (over 230,000 not including duplicates) as opposed to finds (just over 16,000).
+
+If the program involved more finds than inserts, my hypothesis is that we would see the hash-set implementations begin to take superiority.
+
+### Hash Set Implementation
+
+**Mode 0 and 4: Linear Probing**
+
+- As predicted, Linear Probing contains the most collisions out of all the collision handling methods implemented. This is due to the clustering of elements around collisions.
+- There is a significant improvement with the use of hash_2().
+
+**Mode 1 and 5: Quadratic Probing**
+
+- With hash_1() we see a huge improvement from linear probing, taking just over 10 minutes to execute as opposed to Linear Probing, which ran for over 24 hours before I had to stop my laptop from blowing up.
+- With hash_2(), we see massive improvements from mode 1, but only marginal gains from linear probing.
+
+**Mode 2 and 6: Double Hashing**
+
+- In mode 1, it out-performs Linear and Quadratic Probing by a landslide, taking only 76 seconds. However this is because it makes use of a second hashing function when the first leads to a collision.
+- With modes 0-3 all using hash_1(), a terrible hash function due to it’s high symmetry rate, the use of a second hashing function allows the hash-set to perform much better than its competitors.
+- The catch, as hypothesised, is that for modes 4-7, when a exponential hashing function is implemented, Double Hashing isn’t as fast due to requiring more complex computations. 
+
+Despite this, it still has the least collisions across all modes, meaning that it is a method that will scale well with inserts and finds for larger and more complex systems due to having less clustered tables!
+
+**Overall Performance Against Others:**
+
+- Assuming a good hashing function, efficient resizing implementation, a load factor limit below 0.75 and good collision handling methods (i.e quadratic probing and double hashing), we can say that inserts and finds can be ammortised to cost constant time $O(1)$.
+- Overall, this is faster than the Binary Search Tree’s operations, and while slower than the Dynamic Array’s inserts, it is much faster than its finds.
+- It may take longer to set-up than the dynamic array or binary search tree for now due to computing indices and handling collisions, but operating on it becomes easy, and scalable.
+
+### Binary Search Tree
+
+- This is a good trade-off between the two, with $O(h)$ where h = log(n) for inserts and finds in the average case.
+- However, because this is not an AVL tree (self-sorting), it’s possible for the tree to exhibit $h = n$ in the worst case!
+- Sorting the list would simply be an in-order traversal of the treem taking O(n) time.
+
+### In conclusion...
+
+My hash set didn't perform as well as I suspected in terms of execution time, however there are things that I could have done differently, such as measuring
+the time it took specifically for inserts, then for finds, to yield valuable statistics. Furthermore, my insertion function was not optimal, as I included
+the find() function for duplicate removals instead of hard-coding it which would have saved time per insertion.
+
+However, assuming all the sensible protocols for a strong Hash-Set implementation, I still believe that a Hash Set would truly the superior data structure for this particular
+application: a dictionary spell-checker. 
+
+It may take longer to store all the words in the English Dictionary, however that figure is roughly constant, whereas the number of words you wish to find may be 
+infinite. And that’s where it shines in performance: its operations. By increasing the number of find operations called, we would have quite a realistic scenario
+where Hash Sets could very well outperform the dynamic array and binary search tree. This is something I would be interested to explore with more time.
 
