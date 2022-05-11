@@ -140,9 +140,9 @@ sample.10.1.txt (DP vs. Greedy)
 Algorithm           | Optimal Value | Time Taken (s)|   Result
 
 Enumeration         |      XXXX     |    0.006943   |     Correct
-Dynamic Programming |      13991    |    0.005455   |     Correct
+Dynamic Programming |      13990    |    0.005455   |     Correct
 Branch and Bound    |      XXXX     |    0.007282   |     Correct
-Greedy Heuristic    |      13990    |    0.000320   |   Incorrect
+Greedy Heuristic    |      13990    |    0.000320   |     Correct
 
 ===========================================
 sample.10.2.txt (DP vs. Greedy)
