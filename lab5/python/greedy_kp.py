@@ -1,4 +1,5 @@
 import sys
+import time
 
 from knapsack import knapsack
 
@@ -8,6 +9,7 @@ class greedy(knapsack):
 
     # hard1.200.11 result: 126579
     def greedy(self):
+        start_time = time.time()
         self.total_weight=0 # current total weight of the items in the knapsack
         self.total_value=0 # current total profit of the items in the knapsack
         i = 1
@@ -30,9 +32,9 @@ class greedy(knapsack):
                 self.total_weight += self.item_weights[item]
                 self.total_value += self.item_values[item]
                 solution[idx] = True
-            print(self.total_value)
 
         print("The greedy solution - not necessarily optimal - is:")
+        print("Run time: %fs" % (time.time() - start_time))
         self.check_evaluate_and_print_sol(solution)
 
         # NOTE: If the result to you get when you use the check_ ...() function

@@ -1,4 +1,5 @@
 import sys
+import time
 
 from knapsack import knapsack
 
@@ -7,6 +8,7 @@ class enum_knapsack(knapsack):
         knapsack.__init__(self, filename)
 
     def enumerate(self):
+        start_time = time.time()
         # Do an exhaustive search (aka enumeration) of all possible ways to pack
         # the knapsack.
         # This is achived by creating every "binary" solution vectore of length Nitems.
@@ -14,7 +16,6 @@ class enum_knapsack(knapsack):
 
         solution = [False]*(self.Nitems + 1) # (binary/ true/false) solution vectore representing items pack
         best_solution = [False]*(self.Nitems + 1) # (binary) solution veectore for best solution found
-        ideal_solution = [False, True, True, False, False, True, False, False, True, True, False, True, True, False, True, False, False, True, True, False, True]
         j = 0.0
 
         self.QUIET = True
@@ -39,13 +40,14 @@ class enum_knapsack(knapsack):
                 best_value = curr_value
 
         print(f"The maximum profit is: {best_value}")
+        print("Run time: %fs" % (time.time() - start_time))
         self.print_solution(best_solution)
 
     def duplicate_array(self, sol):
-        temp = []
-        for item in enumerate(sol):
-            temp.append(item);
-        return temp
+        copy = []
+        for item in sol:
+            copy.append(item);
+        return copy
 
     def print_solution(self, sol):
         for i in sol:

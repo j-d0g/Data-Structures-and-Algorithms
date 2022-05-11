@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import time
 
 from knapsack import knapsack
 
@@ -7,7 +8,11 @@ class dp(knapsack):
     def __init__(self, filename):
         knapsack.__init__(self, filename)
 
+    # hard1.200.11
+    # value: 126968
+    # weight: 101268/101268
     def DP(self, solution):
+        start_time = time.time()
         # Renaming things to keep track of them wrt. names used in algorithm
         v = self.item_values;
         w = self.item_weights;
@@ -61,6 +66,8 @@ class dp(knapsack):
             solution[i] = True
             j-=w[i]
             i-=1
+
+        print("Run time: %fs" % (time.time() - start_time))
 
 knapsk = dp(sys.argv[1])
 solution = [False]*(knapsk.Nitems + 1)

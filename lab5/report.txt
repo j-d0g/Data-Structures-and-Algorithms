@@ -1,51 +1,179 @@
 Dynamic Programming
 ===================
 
-Why does the 0/1 Knapsack Problem have the three necessary properties for dynamic programming?
+**Why does the 0/1 Knapsack Problem have the three necessary properties for dynamic programming?
 
 1. Simple Subproblems
 
-2. Subproblem Optimality
+A problem is said to have simple subproblems if it can be solved by breaking down the original problem into smaller subproblems
+that have a similar structure to that of the original, and by reusing the local solutions to these subproblems, one can find the
+optimal global solution to the original problem.
 
-3. Subproblem Overlap
+If this sounds familiar, that's because it's essentially what recursion does. And generally speaking, Dynamic Programming can be
+applied to recursive problems!
 
+The subproblem is said to be 'simple' if it only requires a few indices to compute.
+
+0/1 Knapsack can be broken down into subproblems that help solve the original problem, where each subproblem is filling out the
+tabular method, by finding the best value attainable for a given item (row) and weight (row), and the global solution is found by
+selecting the combination of subproblem solutions that yields the best global solution
+
+Each subproblem is simple, in that it only requires the current column index of the previous row, the current item and the current capacity
+at any one time.
+
+2. Sub-problem Optimality
+
+A problem exhibits sub-problem optimality if the optimal global solution is a combination of the optimal solutions to its sub-problems.
+Dynamic Programming exhibits this behaviour by looking at the optimal solutions to 'overlapping' sub-problems. In order to determine the
+solution to a particular subproblem, we need to factor in the solutions from previous decisions, which is what differentiates DP from Greedy.
+
+A 'dynamic programming' problem cannot be solved optimally by simply selecting the optimal local choice for each subproblem, as
+doing this may limit the problem's options later which may yield more fruitful results.
+
+0/1 Knapsack exhibits this type of sub-problem optimality, in that at each step in the table, what we're filling in is the 'best'
+or 'optimal' value that's attainable given the current weight constraints and items dispensable. Do we take the current item?
+Or does the 'best' solution attainable come from only considering previous items? Either way, before we move on, we must make the
+decision that yields the 'best' value for that given subproblem.
+
+By the time we've reached the final item and weight constraint, we have essentially used the 'optimal' solutions to previous rows, or
+to sub-problems to achieve the final optimal global solution.
+
+The combining function used is simple: do we include the current item in our best, or keep the best from previous items? Max(v[i][j],v[i-1][j])
+
+
+3. Sub-problem Overlap
+
+A problem is said to have sub-problem overlap if the solutions to subproblems require computing again later to solve other subproblems.
+For example, in fibonacci sequence, in order to solve fib(5), it requires the calculation of fib(4) and fib(3). Now fib(4) is a part of the
+the subproblems required for solving the fib of 5, in order to solve fib(4), we need to calculate fib(3) and fib(2). Notice how the subproblem
+fib(3) is required in two different sub-problems?
+
+This is known as sub-problem overlap. The reason why it is a property of dynamic programming problems is because DP thrives in caching results
+to subproblems in order to save time spent recomputing them. If a problem doesn't have sub-problem overlap, then dynamic programming becomes
+redundant.
+
+0/1 Knapsack exhibits this behaviour, in that with each item that's considered in the table, it depends on the cached best-value results
+that consider previous items and weight capacities in order to judge and compute the best value attainable given the cumulative current
+items and capacity. Without the results to the previous subproblems, given a current item and capacity, it is not possible to determine
+whether including the current item in the knapsack would truly yield the best solution for the current weight.
 
 Greedy
 ======
 
 1.  Why is a greedy approach not necessarily optimal for 0/1 Knapsack?
 
+Because 0/1 Knapsack has overlapping subproblems, whereas Greedy only finds the optimal local choice.
+Choosing the best choice at any one time might limit your options elsewhere, thus sacrificing the optimal
+global solution.
+
 2.  Is the greedy approach optimal for the Fractional Knapsack problem?  Explain your reasoning.
+
+Yes, because in the fractional knapsack problem, the optimal solution comes from taking all the best
+value-for-weight items first. It no longer becomes a problem that depends on the correct combinations
+of items to yield the optimal solution, but rather sorting it in best value:weight ratio, and taking
+as much as the knapsack can fit exhaustively.
 
 Testing
 =======
 
 1.  Why can't you use full enumeration for large instances?
 
-Suppose one evaluation of a solutions takes 1 microsecond, how large an instance do you think can be practically solved in an hour?  Justify your answer.
+With an exponential time complexity, it would take way too long to even run.
 
-2.  Fill in the table below for each test set, noting whether or not you killed the algorithm.  Result should indicate whether the correct optimal solution has been found.  This should be 377 for easy.20.1.txt, 4077 for easy.200.4.txt, 126968 for hard1.200.11.txt and 1205259 for hard1.2000.1.txt.  You can generate this output using test.sh if you wish.
+Suppose one evaluation of a solutions takes 1 microsecond, how large an instance do you think can be
+practically solved in an hour?  Justify your answer.
+
+1 solution = 1 microsecond = T(1)
+
+For N instances, enumeration takes T(2^N) time.
+T(2^N) = 2^N solutions = 10^6 x 3600 = 3.6x10^9
+N = Log2(3.6x10^9)
+N = 31.7... = 31.
+
+Approximately 31 instances can practically solved in an hour.
+
+**2.  Fill in the table below for each test set, noting whether or not you killed the algorithm.  Result should indicate whether the correct optimal solution has been found.  This should be 377 for easy.20.1.txt, 4077 for easy.200.4.txt, 126968 for hard1.200.11.txt and 1205259 for hard1.2000.1.txt.  You can generate this output using test.sh if you wish.
 
 ===========================================
-easy.20.1.txt 
+easy.20.1.txt
 ===========================================
-Algorithm |      Optimal Value       | Time Taken  | Result
+Algorithm           | Optimal Value | Time Taken (s)|   Result
+
+Enumeration         |      377      |      6.779356s    |   Correct
+Dynamic Programming |      377      |      0.024143s    |   Correct
+Branch and Bound    |      377      |      0.037298s    |   Correct
+Greedy Heuristic    |      368      |      0.000474s    |   Incorrect
 
 ===========================================
 easy.200.4.txt
 ===========================================
-Algorithm |      Optimal Value       | Time Taken  | Result
+Algorithm           | Optimal Value | Time Taken (s)|   Result
+
+Enumeration         |       615     |      100.00    |   Incorrect (Killed)
+Dynamic Programming |     4,077     |      2.281894    |   Correct
+Branch and Bound    |     4,077     |      100.00    |   Correct
+Greedy Heuristic    |     4,075     |      0.001471s    |   Incorrect
 
 ===========================================
 hard1.200.11.txt
 ===========================================
-Algorithm |      Optimal Value       | Time Taken  | Result
+Algorithm           | Optimal Value | Time Taken (s)|   Result
+
+Enumeration         |     25,692    |     100.00    |   Incorrect (Killed)
+Dynamic Programming |    126,968    |     91.189454 |   Correct
+Branch and Bound    |    126,706    |     100.00    |   Incorrect (Killed)
+Greedy Heuristic    |    126,579    |     0.001499  |   Incorrect
 
 ===========================================
 hard1.2000.1.txt
 ===========================================
-Algorithm |      Optimal Value       | Time Taken  | Result
+Algorithm           | Optimal Value | Time Taken (s)|   Result
 
+Enumeration         |       20,099  |      100.00    |   Incorrect (Killed)
+Dynamic Programming |    1,205,167  |      100.00    |   Incorrect (Killed)
+Branch and Bound    |    1,205,167  |      100.00    |   Incorrect (Killed)
+Greedy Heuristic    |    1,205,167  |      0.009892  |   Incorrect
+
+===========================================
+sample.10.1.txt (DP vs. Greedy)
+===========================================
+Algorithm           | Optimal Value | Time Taken (s)|   Result
+
+Enumeration         |      XXXX     |    0.006943   |     Correct
+Dynamic Programming |      13991    |    0.005455   |     Correct
+Branch and Bound    |      XXXX     |    0.007282   |     Correct
+Greedy Heuristic    |      13990    |    0.000320   |   Incorrect
+
+===========================================
+sample.10.2.txt (DP vs. Greedy)
+===========================================
+Algorithm           | Optimal Value | Time Taken (s)|   Result
+
+Enumeration         |      13991    |     0.006710  |     Correct
+Dynamic Programming |      13990    |     0.005326  |     Correct
+Branch and Bound    |      13991    |     0.013050  |     Correct
+Greedy Heuristic    |      13991    |     0.000312  |   Incorrect
+
+===========================================
+
+sample.10.3.txt (DP vs. Greedy vs. BnB)
+===========================================
+Algorithm           | Optimal Value | Time Taken (s)|   Result
+
+Enumeration         |      14173     |    0.006764  |      Correct
+Dynamic Programming |      14173     |    4.598748  |      Correct
+Branch and Bound    |      14173     |    0.012059  |      Correct
+Greedy Heuristic    |      14173     |    0.000323  |      Correct
+
+===========================================
+sample.2000.4.txt (DP vs. BnB)
+===========================================
+Algorithm           | Optimal Value | Time Taken (s)|   Result
+
+Enumeration         |      N/a     |    100.00     |    Incorrect (killed)
+Dynamic Programming |      5600     |    0.942790   |    Correct
+Branch and Bound    |      5599     |    100.00     |    Incorrect (killed)
+Greedy Heuristic    |      5582     |    0.008928   |    Incorrect
 
 So for instance if you are running the program using the bnb algorithm on the hard1.200.11.txt and kill the program after it has been running for 1 minute and the best solution at that point has 126756 in the knapsack then you should note that you killed the program and write
 
@@ -53,25 +181,83 @@ bnb    126756	1 min  incorrect (killed)
 
 If on the other hand you were running the program using the bnb algorithm on the easy.20.1.txt and it completed after 1 second with a value of 377 then you should write
 
-bnb    377	1 second correct 
+bnb    377	1 second correct
 
 Note that some knapsack implementations generate candidate solutions as they go so you can get the program to print its current best solution, while other implementations do not produce a candidate solution until the end.
 
 
 3.  Which instances does greedy solve optimally?
 
+Instances where, when items are sorted in decreasing order of value:weight ratio, the frac_bound() fraction
+of the last item is 1, or in other words, the full capacity is used when using frac_bound().
+
+Another instance the greedy algorithm optimally solves knapsack is by changing the problem overall
+from 0/1 to fractional knapsack, where you can take part of an item.
+
 Does dynamic programming work on all instances and why/why not?
+
+It does. It always finds the optimal solution, because it analyses all the possible solutions and selects
+the best one. However, on the final hard1.2000.1, it fails to do this in a reasonable time. This is because
+the time and space complexity are O(n*c), where c = capacity. The capacity in hard1.2000 is far greater
+than the other instances, and thus it takes much longer to compute, and the machine it is running on may
+exhaust its memory before an optimal solution is found.
 
 Does branch-and-bound come to a stop on all instances in reasonable time?
 
+No. The time it takes on hard1 instances resembles that of enumeration. I suspect that's because there's
+less pruning done.
+
 4.  Can you explain WHY the hard1 instances are easy or hard (cause problems) for
     i) greedy
+
+    HARD?
+
+    More items and weights, more subproblems, more overlaps, and therefore more potential combinations
+    that may be more optimal than a simple greedy heuristic that sums the best local solutions to get the
+    global solution.
+
+    Larger inputs ultimately increase the chance of larger deviations between the greedy solution and the
+    optimal one.
+
+    EASY?
+
+    But greedy provides the fastest solution between all of them, because it has O(N) time complexity.
+    It is not dependant on the capacity, as it merely iterates through the items until it has either
+    reached full capacity, or at worst, filled the knapsack with all (N) items.
+
     ii) branch-and-bound
+
+    EASY?
+
+    It's much more effective than enum at finding a 'good enough' solution because at the beginning, pruning
+    obviously bad decisions and using the priority queue to go down the best potential candidates allows for
+    a quick, close-enough 'best'.
+
+    HARD?
+
+    In hard1, because the input is so great, the upper bounds remain greater than the current best value
+    for quite some time, meaning less pruning is done, making it closer to an enumeration / brute force
+    time complexity.
+
     iii) dynamic programming
 
+    HARD?
+
+    DP takes up O(n*m) time and space. Unlike the others, the time and space complexity to compute solutions to
+    sub-problems in the tabular method is dependant on both the input size AND the capacity.
+
+    This makes it hard, because the capacities in hard1 are much greater than the number of items passed in,
+    making much slower than, say, Greedy.
 
 5.  The airline has problems of size 500-2000 of similar type to the hard1 instances.  Which algorithms do you recommend using and why?
 
-What should they do in the case the algorihm runs out of time?
+What should they do in the case the algorithm runs out of time?
 
+Well sizes 500-2000 automatically rule out enumeration, and branch and bound could be quite slow.
+Dynamic programming would yield the most time efficient solution as well as an optimal solution.
 
+However, if the capacity is too great, this could take up a lot of space. In this event, I would suggest
+using branch and bound, killing it when the algorithm runs out of time, as well as the greedy algorithm,
+which while doesn't yield the optimal solution, is both fast and often 'good enough'.
+
+They should then take the max value between the killed branch and bound, and greedy!
