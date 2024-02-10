@@ -1,4 +1,4 @@
-# COMP26120_2021_base
+# Data Structures & Algorithms
 
 This is the base folder for Data Structures and Algorithm Experiments.
 
