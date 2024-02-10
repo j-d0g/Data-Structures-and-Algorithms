@@ -1,5 +1,6 @@
 # COMP26120_2021_base
 
-This is the Git project for COMP26120 programming lab coursework.  It should be used both for formative (non-assessed) and summative (assessed) courseworks. 
+This is the base folder for Data Structures and Algorithm Experiments.
 
-Please see Blackboard for details of these courseworks including instructions and deadlines.
+Navigate to lab3/python to find my experiments of Binary Search Trees, and the effects of changing different Hashing Parameters and Methods.
+Navigate to lab5/python to find my experiments with BnB and DP algorithms.
